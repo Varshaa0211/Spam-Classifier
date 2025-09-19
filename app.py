@@ -4,7 +4,7 @@ import joblib
 # ----------------------------
 # Load Model and Vectorizer
 # ----------------------------
-@st.cache_resource
+
 def load_model():
     model = joblib.load("spam_model.pkl")
     vectorizer = joblib.load("vectorizer.pkl")
