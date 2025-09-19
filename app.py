@@ -1,64 +1,37 @@
 import streamlit as st
-import re
-import string
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
+import joblib
 
 # ----------------------------
-# NLTK setup
+# Load Model and Vectorizer
 # ----------------------------
-nltk.download('stopwords')
-nltk.download('wordnet')
+@st.cache_resource
+def load_model():
+    model = joblib.load("spam_model.pkl")
+    vectorizer = joblib.load("vectorizer.pkl")
+    return model, vectorizer
 
-stop_words = set(stopwords.words('english'))
-lemmatizer = WordNetLemmatizer()
-
-# ----------------------------
-# Text Preprocessing
-# ----------------------------
-def preprocess_text(text):
-    # lowercase
-    text = text.lower()
-    # remove numbers
-    text = re.sub(r'\d+', '', text)
-    # remove punctuation
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    # tokenize
-    words = text.split()
-    # remove stopwords + lemmatize
-    words = [lemmatizer.lemmatize(word) for word in words if word not in stop_words]
-    return " ".join(words)
+model, vectorizer = load_model()
 
 # ----------------------------
-# Load Model & Vectorizer
+# Streamlit App
 # ----------------------------
-model = joblib.load("spam_classifier_model.pkl")   # trained model
-vectorizer = joblib.load("vectorizer.pkl")         # TF-IDF or CountVectorizer
+st.set_page_config(page_title="Spam Classification", layout="centered")
+st.title("📩 Spam Message Classifier")
 
-# ----------------------------
-# Streamlit UI
-# ----------------------------
-st.set_page_config(page_title="📧 Spam Classification", layout="centered")
+st.write("Type a message below to check whether it is **Spam** or **Ham (Not Spam)**.")
 
-st.title("📧 Spam or Ham Classifier")
-st.write("Enter a message/email text below and find out if it's **Spam** or **Ham (Not Spam)**.")
-
-# Input box
-user_input = st.text_area("✍️ Type your message here:")
+# User Input
+user_input = st.text_area("Enter your message:", "")
 
 if st.button("Predict"):
     if user_input.strip() == "":
-        st.warning("⚠️ Please enter some text to classify.")
+        st.warning("⚠️ Please enter a message first!")
     else:
-        # preprocess
-        processed_text = preprocess_text(user_input)
-        # vectorize
-        vectorized_text = vectorizer.transform([processed_text])
-        # predict
-        prediction = model.predict(vectorized_text)[0]
+        # Transform input and predict
+        transformed_input = vectorizer.transform([user_input])
+        prediction = model.predict(transformed_input)[0]
 
-        if prediction == 1:  # Spam label
-            st.error("🚨 This message is **SPAM**")
-        else:  # Ham label
-            st.success("✅ This message is **HAM (Not Spam)**")
+        if prediction == 1:
+            st.error("🚨 This message is **SPAM**!")
+        else:
+            st.success("✅ This message is **HAM (Not Spam)**.")
