@@ -3,7 +3,7 @@ import pickle
 from sklearn.feature_extraction.text import CountVectorizer
 
 # Title of the app
-st.title('Spam or Ham Message Classification')
+st.title('SMS Spam Detection')
 
 # Load pre-trained model and vectorizer
 model = pickle.load(open('spam_model.pkl', 'rb'))  # Change the model filename if needed
