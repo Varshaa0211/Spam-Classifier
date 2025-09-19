@@ -1,50 +1,39 @@
 # app.py
 import streamlit as st
 import joblib
-import time
 import os
 
 # ==============================
-# Load Model and Vectorizer (Safe Path)
+# Load Model and Vectorizer
 # ==============================
-BASE_DIR = os.path.dirname(os.path.abspath('/content/spam_model.pkl'))
-BASE_DIR = os.path.dirname(os.path.abspath('/content/vectorizer.pkl'))
-model = joblib.load(os.path.join(BASE_DIR, "spam_model.pkl"),"rb")
-vectorizer = joblib.load(os.path.join(BASE_DIR, "vectorizer.pkl"),"rb")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+model = joblib.load(os.path.join(BASE_DIR, "models", "spam_model.pkl"))
+vectorizer = joblib.load(os.path.join(BASE_DIR, "models", "vectorizer.pkl"))
 
 # ==============================
 # Prediction Function
 # ==============================
-def predict_spam(text):
-    text_vec = vectorizer.transform([text])
-    prediction = model.predict(text_vec)[0]
-    prob = model.predict_proba(text_vec)[0]
-    return prediction, prob
+def predict_spam_or_ham(message):
+    message_vectorized = vectorizer.transform([message])
+    prediction = model.predict(message_vectorized)
+
+    if prediction == 1:
+        return "Spam"
+    else:
+        return "Ham"
 
 # ==============================
-# Streamlit App
+# Streamlit App UI
 # ==============================
-def main():
-    st.set_page_config(page_title="Spam or Ham Classifier", page_icon="📧", layout="centered")
-    st.title("📧 Spam or Ham Classifier")
+st.title("SMS Spam Detection")
+st.header("Enter the message to classify")
 
-    user_input = st.text_area("✍ Enter your message below:", height=150)
+message = st.text_area("Message", "Type here...")
 
-    if st.button("🔍 Predict"):
-        if user_input.strip() == "":
-            st.warning("⚠ Please enter a message first!")
-        else:
-            with st.spinner("Analyzing message..."):
-                time.sleep(1)
-                result, prob = predict_spam(user_input)
-
-            if result == 1:
-                st.error("🚨 Spam!")
-            else:
-                st.success("✅ Ham!")
-
-            st.write(f"🔹 Probability Ham: {prob[0]:.4f}")
-            st.write(f"🔸 Probability Spam: {prob[1]:.4f}")
-
-if _name_ == "_main_":
-    main()
+if st.button("Predict"):
+    if message.strip():
+        result = predict_spam_or_ham(message)
+        st.success(f"This message is: {result}")
+    else:
+        st.warning("Please enter a message to classify")
