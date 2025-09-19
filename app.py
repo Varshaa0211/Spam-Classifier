@@ -9,8 +9,8 @@ import os
 # ==============================
 
  # Save model and vectorizer using joblib
-    joblib.dump(spam_model, "spam_model.pkl")
-    joblib.dump(vectorizer, "vectorizer.pkl")
+ joblib.dump(spam_model, "spam_model.pkl")
+ joblib.dump(vectorizer, "vectorizer.pkl")
 
 # ==============================
 # Prediction Function
