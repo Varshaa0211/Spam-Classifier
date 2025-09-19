@@ -7,8 +7,8 @@ import os
 # ==============================
 # Load Model and Vectorizer (Safe Path)
 # ==============================
-BASE_DIR = os.path.dirname(os.path.abspath(/content/spam_model.pkl))
-BASE_DIR = os.path.dirname(os.path.abspath(/content/vectorizer.pkl))
+BASE_DIR = os.path.dirname(os.path.abspath("/content/spam_model.pkl"))
+BASE_DIR = os.path.dirname(os.path.abspath("/content/vectorizer.pkl"))
 model = joblib.load(os.path.join(BASE_DIR, "spam_model.pkl"))
 vectorizer = joblib.load(os.path.join(BASE_DIR, "vectorizer.pkl"))
 
