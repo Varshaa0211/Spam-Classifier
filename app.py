@@ -1,18 +1,15 @@
 # app.py
 import streamlit as st
-import pickle
+import joblib
 import time
 import os
 
-
-
-# Load Model and Vectorizer (Safe Path)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 # ==============================
-
-model = pickle.load(open(os.path.join(BASE_DIR, 'spam_model.pkl'), 'rb'))
-vectorizer = pickle.load(open(os.path.join(BASE_DIR, 'vectorizer.pkl'), 'rb'))
+# Load Model and Vectorizer (Safe Path)
+# ==============================
+BASE_DIR = os.path.dirname(os.path.abspath(_file_))
+model = joblib.load(os.path.join(BASE_DIR, "spam_model.pkl"))
+vectorizer = joblib.load(os.path.join(BASE_DIR, "vectorizer.pkl"))
 
 # ==============================
 # Prediction Function
@@ -31,17 +28,17 @@ def main():
     st.set_page_config(page_title="Spam or Ham Classifier", page_icon="📧", layout="centered")
 
     st.title("📧 Spam or Ham Classifier")
-    st.markdown("### Detect whether a message is *Spam* or *Ham* using Machine Learning.")
+    st.markdown("### Detect whether a message is Spam or Ham using Machine Learning.")
 
     # Sidebar
     st.sidebar.header("ℹ About the App")
     st.sidebar.write(
         """
-        This app uses a *Naive Bayes Classifier* trained on the SMS Spam dataset.  
-        Enter a message in the box and click *Predict* to see the result.  
+        This app uses a Naive Bayes Classifier trained on a small dataset.  
+        Enter a message in the box and click Predict to see the result.  
         """
     )
-    st.sidebar.write("📌 Built with *Streamlit, Scikit-learn, Python*")
+    st.sidebar.write("📌 Built with Streamlit, Scikit-learn, Python")
 
     # Input area
     st.markdown("#### ✍ Enter your message below:")
@@ -58,15 +55,15 @@ def main():
 
             # Display result
             if result == 1:
-                st.error("🚨 This message is *Spam*!")
+                st.error("🚨 This message is Spam!")
             else:
-                st.success("✅ This message is *Ham* (Not Spam).")
+                st.success("✅ This message is Ham (Not Spam).")
 
             # Show probabilities
             st.markdown("### 📊 Prediction Probability")
             st.progress(float(max(prob)))  # progress bar
-            st.write(f"🔹 Probability Ham: *{prob[0]:.4f}*")
-            st.write(f"🔸 Probability Spam: *{prob[1]:.4f}*")
+            st.write(f"🔹 Probability Ham: {prob[0]:.4f}")
+            st.write(f"🔸 Probability Spam: {prob[1]:.4f}")
 
     # Footer
     st.markdown("---")
