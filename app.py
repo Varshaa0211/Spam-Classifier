@@ -7,9 +7,10 @@ import os
 # ==============================
 # Load Model and Vectorizer (Safe Path)
 # ==============================
-BASE_DIR = os.path.dirname(os.path.abspath(_file_))
-model = joblib.load(os.path.join(BASE_DIR, "spam_model.pkl"))
-vectorizer = joblib.load(os.path.join(BASE_DIR, "vectorizer.pkl"))
+
+ # Save model and vectorizer using joblib
+    joblib.dump(spam_model, "spam_model.pkl")
+    joblib.dump(vectorizer, "vectorizer.pkl")
 
 # ==============================
 # Prediction Function
