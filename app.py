@@ -1,37 +1,35 @@
 import streamlit as st
-import joblib
+import pickle
+from sklearn.feature_extraction.text import CountVectorizer
 
-# ----------------------------
-# Load Model and Vectorizer
-# ----------------------------
+# Title of the app
+st.title('Spam or Ham Message Classification')
 
-def load_model():
-    model = joblib.load("spam_model.pkl")
-    vectorizer = joblib.load("vectorizer.pkl")
-    return model, vectorizer
+# Load pre-trained model and vectorizer
+model = pickle.load(open('spam_model.pkl', 'rb'))  # Change the model filename if needed
+vectorizer = pickle.load(open('vectorizer.pkl', 'rb'))  # The vectorizer used during training
 
-model, vectorizer = load_model()
-
-# ----------------------------
-# Streamlit App
-# ----------------------------
-st.set_page_config(page_title="Spam Classification", layout="centered")
-st.title("📩 Spam Message Classifier")
-
-st.write("Type a message below to check whether it is **Spam** or **Ham (Not Spam)**.")
-
-# User Input
-user_input = st.text_area("Enter your message:", "")
-
-if st.button("Predict"):
-    if user_input.strip() == "":
-        st.warning("⚠️ Please enter a message first!")
+# Function to predict spam or ham
+def predict_spam_or_ham(message):
+    # Transform the input message using the same vectorizer
+    message_vectorized = vectorizer.transform([message])
+    prediction = model.predict(message_vectorized)
+    
+    if prediction == 1:
+        return 'Spam'
     else:
-        # Transform input and predict
-        transformed_input = vectorizer.transform([user_input])
-        prediction = model.predict(transformed_input)[0]
+        return 'Ham'
 
-        if prediction == 1:
-            st.error("🚨 This message is **SPAM**!")
-        else:
-            st.success("✅ This message is **HAM (Not Spam)**.")
+# App interface
+st.header('Enter the message to classify')
+
+# User input
+message = st.text_area("Message", "Type here...")
+
+# Predict button
+if st.button('Predict'):
+    if message:
+        result = predict_spam_or_ham(message)
+        st.success(f'This message is: {result}')
+    else:
+        st.warning('Please enter a message to classify')
