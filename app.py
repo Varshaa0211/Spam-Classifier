@@ -7,10 +7,9 @@ import os
 # ==============================
 # Load Model and Vectorizer (Safe Path)
 # ==============================
-
- # Save model and vectorizer using joblib
- joblib.dump(spam_model, "spam_model.pkl")
- joblib.dump(vectorizer, "vectorizer.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(_file_))
+model = joblib.load(os.path.join(BASE_DIR, "spam_model.pkl"))
+vectorizer = joblib.load(os.path.join(BASE_DIR, "vectorizer.pkl"))
 
 # ==============================
 # Prediction Function
@@ -18,59 +17,33 @@ import os
 def predict_spam(text):
     text_vec = vectorizer.transform([text])
     prediction = model.predict(text_vec)[0]
-    prob = model.predict_proba(text_vec)[0]  # probability
+    prob = model.predict_proba(text_vec)[0]
     return prediction, prob
-
 
 # ==============================
 # Streamlit App
 # ==============================
 def main():
     st.set_page_config(page_title="Spam or Ham Classifier", page_icon="📧", layout="centered")
-
     st.title("📧 Spam or Ham Classifier")
-    st.markdown("### Detect whether a message is Spam or Ham using Machine Learning.")
 
-    # Sidebar
-    st.sidebar.header("ℹ About the App")
-    st.sidebar.write(
-        """
-        This app uses a Naive Bayes Classifier trained on a small dataset.  
-        Enter a message in the box and click Predict to see the result.  
-        """
-    )
-    st.sidebar.write("📌 Built with Streamlit, Scikit-learn, Python")
+    user_input = st.text_area("✍ Enter your message below:", height=150)
 
-    # Input area
-    st.markdown("#### ✍ Enter your message below:")
-    user_input = st.text_area("Message:", height=150, placeholder="Type your SMS or Email here...")
-
-    # Predict button
     if st.button("🔍 Predict"):
         if user_input.strip() == "":
             st.warning("⚠ Please enter a message first!")
         else:
             with st.spinner("Analyzing message..."):
-                time.sleep(1)  # just to show spinner
+                time.sleep(1)
                 result, prob = predict_spam(user_input)
 
-            # Display result
             if result == 1:
-                st.error("🚨 This message is Spam!")
+                st.error("🚨 Spam!")
             else:
-                st.success("✅ This message is Ham (Not Spam).")
+                st.success("✅ Ham!")
 
-            # Show probabilities
-            st.markdown("### 📊 Prediction Probability")
-            st.progress(float(max(prob)))  # progress bar
             st.write(f"🔹 Probability Ham: {prob[0]:.4f}")
             st.write(f"🔸 Probability Spam: {prob[1]:.4f}")
 
-    # Footer
-    st.markdown("---")
-    st.markdown("Made with ❤ using Streamlit | Demo Project")
-
-
-# Run App
 if _name_ == "_main_":
     main()
