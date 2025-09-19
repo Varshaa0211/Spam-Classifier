@@ -1,35 +1,75 @@
+# app.py
 import streamlit as st
 import pickle
+import time
+import os
+
+# ==============================
+# Load Model and Vectorizer (Safe Path)
+# ==============================
+BASE_DIR = os.path.dirname(os.path.abspath(_file_))
+model = pickle.load(open(os.path.join(BASE_DIR, "spam_model.pkl"), "rb"))
+vectorizer = pickle.load(open(os.path.join(BASE_DIR, "vectorizer.pkl"), "rb"))
+
+# ==============================
+# Prediction Function
+# ==============================
+def predict_spam(text):
+    text_vec = vectorizer.transform([text])
+    prediction = model.predict(text_vec)[0]
+    prob = model.predict_proba(text_vec)[0]  # probability
+    return prediction, prob
 
 
-# Title of the app
-st.title('SMS Spam Detection')
+# ==============================
+# Streamlit App
+# ==============================
+def main():
+    st.set_page_config(page_title="Spam or Ham Classifier", page_icon="📧", layout="centered")
 
-# Load pre-trained model and vectorizer
-model = pickle.load(open('spam_model.pkl', 'rb'))  # Change the model filename if needed
-vectorizer = pickle.load(open('vectorizer.pkl', 'rb'))  # The vectorizer used during training
+    st.title("📧 Spam or Ham Classifier")
+    st.markdown("### Detect whether a message is *Spam* or *Ham* using Machine Learning.")
 
-# Function to predict spam or ham
-def predict_spam_or_ham(message):
-    # Transform the input message using the same vectorizer
-    message_vectorized = vectorizer.transform([message])
-    prediction = model.predict(message_vectorized)
-    
-    if prediction == 1:
-        return 'Spam'
-    else:
-        return 'Ham'
+    # Sidebar
+    st.sidebar.header("ℹ About the App")
+    st.sidebar.write(
+        """
+        This app uses a *Naive Bayes Classifier* trained on the SMS Spam dataset.  
+        Enter a message in the box and click *Predict* to see the result.  
+        """
+    )
+    st.sidebar.write("📌 Built with *Streamlit, Scikit-learn, Python*")
 
-# App interface
-st.header('Enter the message to classify')
+    # Input area
+    st.markdown("#### ✍ Enter your message below:")
+    user_input = st.text_area("Message:", height=150, placeholder="Type your SMS or Email here...")
 
-# User input
-message = st.text_area("Message", "Type here...")
+    # Predict button
+    if st.button("🔍 Predict"):
+        if user_input.strip() == "":
+            st.warning("⚠ Please enter a message first!")
+        else:
+            with st.spinner("Analyzing message..."):
+                time.sleep(1)  # just to show spinner
+                result, prob = predict_spam(user_input)
 
-# Predict button
-if st.button('Predict'):
-    if message:
-        result = predict_spam_or_ham(message)
-        st.success(f'This message is: {result}')
-    else:
-        st.warning('Please enter a message to classify')
+            # Display result
+            if result == 1:
+                st.error("🚨 This message is *Spam*!")
+            else:
+                st.success("✅ This message is *Ham* (Not Spam).")
+
+            # Show probabilities
+            st.markdown("### 📊 Prediction Probability")
+            st.progress(float(max(prob)))  # progress bar
+            st.write(f"🔹 Probability Ham: *{prob[0]:.4f}*")
+            st.write(f"🔸 Probability Spam: *{prob[1]:.4f}*")
+
+    # Footer
+    st.markdown("---")
+    st.markdown("Made with ❤ using Streamlit | Demo Project")
+
+
+# Run App
+if _name_ == "_main_":
+    main()
