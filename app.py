@@ -1,6 +1,6 @@
 import streamlit as st
 import pickle
-from sklearn.feature_extraction.text import CountVectorizer
+
 
 # Title of the app
 st.title('SMS Spam Detection')
